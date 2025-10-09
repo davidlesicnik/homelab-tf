@@ -1,11 +1,22 @@
 # Terraform configuration for setting up my kubernetes cluster.
 # Currently includes MetalLB and Nginx Ingress Controller.
 
+variable "metallb_chart_version" {
+  type        = string
+  description = "Version of the MetalLB Helm chart to deploy."
+  default     = "0.14.5"
+}
+
+variable "nginx_ingress_chart_version" {
+  type        = string
+  description = "Version of the Nginx Ingress Helm chart to deploy."
+  default     = "4.10.1"
+}
+
 variable "metallb_ip_range" {
   type    = string
   default = "192.168.10.90-192.168.10.99"
 }
-
 terraform {
   required_providers {
     kubernetes = {
@@ -27,15 +38,9 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
-provider "helm" {
-  kubernetes = {
-    config_path = "~/.kube/config"
-  }
-}
+provider "helm" {}
 
-provider "kubectl" {
-  config_path = "~/.kube/config"
-}
+provider "kubectl" {}
 
 # MetalLB Namespace
 resource "kubernetes_namespace" "metallb_system" {
@@ -55,7 +60,7 @@ resource "helm_release" "metallb" {
   repository = "https://metallb.github.io/metallb"
   chart      = "metallb"
   namespace  = kubernetes_namespace.metallb_system.metadata[0].name
-  version    = "0.14.5"
+  version    = var.metallb_chart_version
 
   depends_on = [
     kubernetes_namespace.metallb_system
@@ -112,8 +117,8 @@ resource "helm_release" "nginx_ingress" {
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
   namespace  = kubernetes_namespace.ingress_nginx.metadata[0].name
-  version    = "4.10.1"
-
+  version    = var.nginx_ingress_chart_version
+  
   depends_on = [
     kubernetes_namespace.ingress_nginx,
     kubectl_manifest.metallb_l2advertisement
