@@ -13,6 +13,12 @@ variable "nginx_ingress_chart_version" {
   default     = "4.10.1"
 }
 
+variable "argocd_chart_version" {
+  type        = string
+  description = "Version of the Argo CD Helm chart to deploy."
+  default     = "7.6.12"
+}
+
 variable "metallb_ip_range" {
   type    = string
   default = "192.168.10.90-192.168.10.99"
@@ -127,6 +133,57 @@ resource "helm_release" "nginx_ingress" {
 
   depends_on = [
     kubernetes_namespace.ingress_nginx,
+    kubectl_manifest.metallb_l2advertisement
+  ]
+}
+
+# Argo CD Namespace
+resource "kubernetes_namespace" "argocd" {
+  metadata {
+    name = "argocd"
+    labels = {
+      "pod-security.kubernetes.io/enforce" = "baseline"
+    }
+  }
+}
+
+# Argo CD Helm Chart
+resource "helm_release" "argocd" {
+  name       = "argocd"
+  repository = "https://argoproj.github.io/argo-helm"
+  chart      = "argo-cd"
+  namespace  = kubernetes_namespace.argocd.metadata[0].name
+  version    = var.argocd_chart_version
+
+  values = [
+    yamlencode({
+      server = {
+        service = {
+          type = "ClusterIP"  # important: no LoadBalancer
+        }
+        ingress = {
+          enabled = true
+          ingressClassName = "nginx"
+          hosts = [
+            {
+              host  = "argocd.local"
+              paths = [
+                {
+                  path     = "/"
+                  pathType = "Prefix"
+                }
+              ]
+            }
+          ]
+          tls = [] # add TLS config if needed
+        }
+      }
+    })
+  ]
+
+  depends_on = [
+    kubernetes_namespace.argocd,
+    helm_release.nginx_ingress,
     kubectl_manifest.metallb_l2advertisement
   ]
 }
