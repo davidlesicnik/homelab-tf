@@ -38,9 +38,15 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
-provider "helm" {}
+provider "helm" {
+  kubernetes = {
+    config_path = "~/.kube/config"
+  }
+}
 
-provider "kubectl" {}
+provider "kubectl" {
+  config_path = "~/.kube/config"
+}
 
 # MetalLB Namespace
 resource "kubernetes_namespace" "metallb_system" {
@@ -118,7 +124,7 @@ resource "helm_release" "nginx_ingress" {
   chart      = "ingress-nginx"
   namespace  = kubernetes_namespace.ingress_nginx.metadata[0].name
   version    = var.nginx_ingress_chart_version
-  
+
   depends_on = [
     kubernetes_namespace.ingress_nginx,
     kubectl_manifest.metallb_l2advertisement
