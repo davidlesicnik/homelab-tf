@@ -1,6 +1,11 @@
 # Terraform configuration for setting up my kubernetes cluster.
 # Currently includes MetalLB and Nginx Ingress Controller.
 
+variable "metallb_ip_range" {
+  type    = string
+  default = "192.168.10.90-192.168.10.99"
+}
+
 terraform {
   required_providers {
     kubernetes = {
@@ -68,7 +73,7 @@ resource "kubectl_manifest" "metallb_ipaddresspool" {
       namespace: metallb-system
     spec:
       addresses:
-      - 192.168.10.90-192.168.10.99
+      - ${var.metallb_ip_range}
   YAML
 
   depends_on = [
