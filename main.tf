@@ -8,6 +8,10 @@ terraform {
       source  = "hashicorp/helm"
       version = ">= 2.9.0"
     }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = ">= 1.14.0"
+    }
   }
 }
 
@@ -21,10 +25,19 @@ provider "helm" {
   }
 }
 
+provider "kubectl" {
+  config_path = "~/.kube/config"
+}
+
 # MetalLB Namespace
 resource "kubernetes_namespace" "metallb_system" {
   metadata {
     name = "metallb-system"
+    labels = {
+      "pod-security.kubernetes.io/enforce" = "privileged"
+      "pod-security.kubernetes.io/audit"   = "privileged"
+      "pod-security.kubernetes.io/warn"    = "privileged"
+    }
   }
 }
 
@@ -41,20 +54,19 @@ resource "helm_release" "metallb" {
   ]
 }
 
-resource "kubernetes_manifest" "metallb_ipaddresspool" {
-  manifest = {
-    apiVersion = "metallb.io/v1beta1"
-    kind       = "IPAddressPool"
-    metadata = {
-      name      = "default-pool"
-      namespace = kubernetes_namespace.metallb_system.metadata[0].name
-    }
-    spec = {
-      addresses = [
-        "192.168.10.90-192.168.10.99"  # Adjust this range for your environment
-      ]
-    }
-  }
+# MetalLB IP Address Pool
+# IMPORTANT: Adjust this IP range to match your local network
+resource "kubectl_manifest" "metallb_ipaddresspool" {
+  yaml_body = <<-YAML
+    apiVersion: metallb.io/v1beta1
+    kind: IPAddressPool
+    metadata:
+      name: default-pool
+      namespace: metallb-system
+    spec:
+      addresses:
+      - 192.168.10.90-192.168.10.99
+  YAML
 
   depends_on = [
     helm_release.metallb
@@ -62,23 +74,20 @@ resource "kubernetes_manifest" "metallb_ipaddresspool" {
 }
 
 # MetalLB L2 Advertisement
-resource "kubernetes_manifest" "metallb_l2advertisement" {
-  manifest = {
-    apiVersion = "metallb.io/v1beta1"
-    kind       = "L2Advertisement"
-    metadata = {
-      name      = "default"
-      namespace = kubernetes_namespace.metallb_system.metadata[0].name
-    }
-    spec = {
-      ipAddressPools = [
-        kubernetes_manifest.metallb_ipaddresspool.manifest.metadata.name
-      ]
-    }
-  }
+resource "kubectl_manifest" "metallb_l2advertisement" {
+  yaml_body = <<-YAML
+    apiVersion: metallb.io/v1beta1
+    kind: L2Advertisement
+    metadata:
+      name: default
+      namespace: metallb-system
+    spec:
+      ipAddressPools:
+      - default-pool
+  YAML
 
   depends_on = [
-    kubernetes_manifest.metallb_ipaddresspool
+    kubectl_manifest.metallb_ipaddresspool
   ]
 }
 
@@ -99,6 +108,6 @@ resource "helm_release" "nginx_ingress" {
 
   depends_on = [
     kubernetes_namespace.ingress_nginx,
-    kubernetes_manifest.metallb_l2advertisement
+    kubectl_manifest.metallb_l2advertisement
   ]
 }
