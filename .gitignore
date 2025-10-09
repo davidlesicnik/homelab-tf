@@ -12,7 +12,3 @@ crash.log
 *.auto.tfvars
 *.auto.tfvars.json
 secrets.tfvars
-
-# Terraform provider lock file
-# This is optional, see explanation below.
-.terraform.lock.hcl
