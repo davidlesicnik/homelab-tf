@@ -1,3 +1,6 @@
+# Terraform configuration for setting up my kubernetes cluster.
+# Currently includes MetalLB and Nginx Ingress Controller.
+
 terraform {
   required_providers {
     kubernetes = {
