@@ -247,7 +247,7 @@ resource "helm_release" "nfs_provisioner" {
       }
       storageClass = {
         # This will be the name of the StorageClass you use in your PVCs
-        name = "nfs-client"
+        name = "nfs-client_ssd"
       }
     })
   ]
@@ -273,7 +273,7 @@ resource "helm_release" "nfs_provisioner" {
       }
       storageClass = {
         # This will be the name of the StorageClass you use in your PVCs
-        name = "nfs-client"
+        name = "nfs-client_hdd"
       }
     })
   ]
