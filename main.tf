@@ -157,12 +157,12 @@ resource "helm_release" "argocd" {
 
   values = [
     yamlencode({
+      global = {
+        domain = "argocd.local"
+      }
       server = {
-        service = {
-          type = "ClusterIP"  # important: no LoadBalancer
-        }
         ingress = {
-          enabled = true
+          enabled          = true
           ingressClassName = "nginx"
           hosts = [
             {
@@ -175,7 +175,11 @@ resource "helm_release" "argocd" {
               ]
             }
           ]
-          tls = [] # add TLS config if needed
+        }
+      }
+      configs = {
+        params = {
+          "server.url" = "http://argocd.local"
         }
       }
     })
