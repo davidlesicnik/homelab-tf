@@ -6,6 +6,7 @@ Currently includes these elements.
 1. MetalLB
 2. Nginx Ingress Controller
 3. ArgoCD, connected to my homelab-argo repo
+4. NFS mount to my NAS
 
 ## How to prepare Terraform on the workstation
 

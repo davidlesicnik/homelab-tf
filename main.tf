@@ -1,5 +1,5 @@
 # Terraform configuration for setting up my kubernetes cluster.
-# Currently includes MetalLB, Nginx Ingress Controller and ArgoCD.
+# Currently includes MetalLB, Nginx Ingress Controller, ArgoCD and NFS mount.
 
 variable "metallb_chart_version" {
   type        = string
@@ -19,10 +19,29 @@ variable "argocd_chart_version" {
   default     = "7.6.12"
 }
 
+variable "nfs_provisioner_chart_version" {
+  type        = string
+  description = "Version of the nfs-subdir-external-provisioner Helm chart."
+  default     = "4.0.18"
+}
+
 variable "metallb_ip_range" {
   type    = string
   default = "192.168.10.90-192.168.10.99"
 }
+
+variable "nfs_server_ip" {
+  type        = string
+  description = "IP address of the NFS server."
+  default     = "192.168.10.20"
+}
+
+variable "nfs_server_path" {
+  type        = string
+  description = "The path on the NFS server to provision storage from."
+  default     = "/mnt/storage/k8s"
+}
+
 terraform {
   required_providers {
     kubernetes = {
@@ -196,5 +215,38 @@ resource "helm_release" "argocd" {
     kubernetes_namespace.argocd,
     helm_release.nginx_ingress,
     kubectl_manifest.metallb_l2advertisement
+  ]
+}
+
+# NFS Provisioner Namespace
+resource "kubernetes_namespace" "nfs_provisioner" {
+  metadata {
+    name = "nfs-provisioner"
+  }
+}
+
+# Install NFS Subdir External Provisioner
+resource "helm_release" "nfs_provisioner" {
+  name       = "nfs-subdir-external-provisioner"
+  repository = "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/"
+  chart      = "nfs-subdir-external-provisioner"
+  namespace  = kubernetes_namespace.nfs_provisioner.metadata[0].name
+  version    = var.nfs_provisioner_chart_version
+
+  values = [
+    yamlencode({
+      nfs = {
+        server = var.nfs_server_ip
+        path   = var.nfs_server_path
+      }
+      storageClass = {
+        # This will be the name of the StorageClass you use in your PVCs
+        name = "nfs-client"
+      }
+    })
+  ]
+
+  depends_on = [
+    kubernetes_namespace.nfs_provisioner
   ]
 }
