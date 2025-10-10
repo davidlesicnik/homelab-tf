@@ -179,8 +179,14 @@ resource "helm_release" "argocd" {
       }
       configs = {
         params = {
-          "server.url" = "http://argocd.local"
+          "server.url"      = "http://argocd.local"
           "server.insecure" = "true"
+        }
+        repositories = {
+          homelab-repo = {
+            url  = "https://github.com/davidlesicnik/homelab-argo"
+            type = "git"
+          }
         }
       }
     })

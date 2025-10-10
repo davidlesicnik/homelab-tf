@@ -2,9 +2,10 @@
 
 This repository contains Terraform configuration files to provision and manage all resources necessary for a fully functional Kubernetes cluster.
 
-Currently includes two elements.
+Currently includes these elements.
 1. MetalLB
 2. Nginx Ingress Controller
+3. ArgoCD, connected to my homelab-argo repo
 
 ## How to prepare Terraform on the workstation
 
@@ -25,4 +26,9 @@ Check if the changes are OK, then run
 
 ```bash
 terraform apply
+```
+
+Obtain ArgoCD admin user password
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
