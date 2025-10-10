@@ -13,6 +13,7 @@ Currently includes these elements.
 To get Terraform working, clone the repo and run 
 
 ```bash
+cd k8s
 terraform init -upgrade
 ```
 
