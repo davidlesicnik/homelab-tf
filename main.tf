@@ -36,7 +36,13 @@ variable "nfs_server_ip" {
   default     = "192.168.10.20"
 }
 
-variable "nfs_server_path" {
+variable "nfs_server_path_ssd" {
+  type        = string
+  description = "The path on the NFS server to provision storage from."
+  default     = "/mnt/storage/k8s"
+}
+
+variable "nfs_server_path_hdd" {
   type        = string
   description = "The path on the NFS server to provision storage from."
   default     = "/mnt/storage/k8s"
@@ -225,9 +231,9 @@ resource "kubernetes_namespace" "nfs_provisioner" {
   }
 }
 
-# Install NFS Subdir External Provisioner
+# Install NFS Subdir External Provisioner for ssd storage
 resource "helm_release" "nfs_provisioner" {
-  name       = "nfs-subdir-external-provisioner"
+  name       = "nfs-subdir-external-provisioner_ssd"
   repository = "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/"
   chart      = "nfs-subdir-external-provisioner"
   namespace  = kubernetes_namespace.nfs_provisioner.metadata[0].name
@@ -237,7 +243,33 @@ resource "helm_release" "nfs_provisioner" {
     yamlencode({
       nfs = {
         server = var.nfs_server_ip
-        path   = var.nfs_server_path
+        path   = var.nfs_server_path_ssd
+      }
+      storageClass = {
+        # This will be the name of the StorageClass you use in your PVCs
+        name = "nfs-client"
+      }
+    })
+  ]
+
+  depends_on = [
+    kubernetes_namespace.nfs_provisioner
+  ]
+}
+
+# Install NFS Subdir External Provisioner for HDD path
+resource "helm_release" "nfs_provisioner" {
+  name       = "nfs-subdir-external-provisioner_hdd"
+  repository = "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/"
+  chart      = "nfs-subdir-external-provisioner"
+  namespace  = kubernetes_namespace.nfs_provisioner.metadata[0].name
+  version    = var.nfs_provisioner_chart_version
+
+  values = [
+    yamlencode({
+      nfs = {
+        server = var.nfs_server_ip
+        path   = var.nfs_server_path_hdd
       }
       storageClass = {
         # This will be the name of the StorageClass you use in your PVCs
