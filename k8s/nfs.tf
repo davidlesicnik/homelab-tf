@@ -43,3 +43,23 @@ resource "helm_release" "nfs-provisioner-hdd" {
 
   depends_on = [kubernetes_namespace.nfs_provisioner]
 }
+
+resource "helm_release" "nfs-provisioner-media" {
+  name       = "nfs-subdir-external-provisioner-media"
+  repository = "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/"
+  chart      = "nfs-subdir-external-provisioner"
+  namespace  = kubernetes_namespace.nfs_provisioner.metadata[0].name
+  version    = var.nfs_provisioner_chart_version
+
+  values = [
+    yamlencode({
+      nfs = {
+        server = var.nfs_server_ip
+        path   = var.nfs_server_path_media
+      }
+      storageClass = { name = "nfs-client-media" }
+    })
+  ]
+
+  depends_on = [kubernetes_namespace.nfs_provisioner]
+}

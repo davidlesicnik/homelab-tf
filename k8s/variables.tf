@@ -35,10 +35,15 @@ variable "nfs_server_ip" {
 
 variable "nfs_server_path_ssd" {
   type        = string
-  default     = "/mnt/storage/k8s"
+  default     = "/mnt/volume1/hdd"
 }
 
 variable "nfs_server_path_hdd" {
   type        = string
-  default     = "/mnt/storage/k8s"
+  default     = "/volume2/ssd"
+}
+
+variable "nfs_server_path_media" {
+  type        = string
+  default     = "/volume1/media"
 }
