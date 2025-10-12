@@ -29,7 +29,7 @@ variable "metallb_ip_range" {
 
 variable "nfs_server_ip" {
   type        = string
-  default     = "192.168.10.20"
+  default     = "192.168.10.9"
   description = "IP address of the NFS server."
 }
 
