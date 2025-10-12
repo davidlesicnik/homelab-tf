@@ -38,11 +38,3 @@ resource "helm_release" "vault" {
     kubectl_manifest.metallb_l2advertisement
   ]
 }
-
-output "vault_namespace" {
-  value = kubernetes_namespace.vault.metadata[0].name
-}
-
-output "vault_init_command" {
-  value = "kubectl exec -n ${kubernetes_namespace.vault.metadata[0].name} vault-0 -- vault operator init"
-}
