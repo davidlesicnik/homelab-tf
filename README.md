@@ -6,7 +6,8 @@ Currently includes these elements.
 1. MetalLB
 2. Nginx Ingress Controller
 3. ArgoCD, connected to my homelab-argo repo
-4. NFS mount to my NAS
+4. NFS mounts to my NAS
+5. Vault with a vault autounseal cronjob
 
 ## How to prepare Terraform on the workstation
 
@@ -17,7 +18,7 @@ cd k8s
 terraform init -upgrade
 ```
 
-## How to deploy the changes
+## How to deploy
 
 To apply the terraform state, simply run
 ```bash
@@ -34,3 +35,24 @@ Obtain ArgoCD admin user password
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
+
+Next we need to setup vault auto-unseal after reboot.
+List the keys and unseal the vault manually for the first time
+
+```bash
+kubectl exec -n vault vault-0 -- vault operator init
+kubectl exec -n vault vault-0 -- vault operator unseal [key1]
+kubectl exec -n vault vault-0 -- vault operator unseal [key2]
+kubectl exec -n vault vault-0 -- vault operator unseal [key3]
+```
+
+Save the keys into a password manager. After that we'll setup a kubernetes secret which will be used by a cronjob to unseal the vault.
+
+```bash
+kubectl create secret generic vault-unseal-keys -n vault \
+  --from-literal=key1='<key1>' \
+  --from-literal=key2='<key2>' \
+  --from-literal=key3='<key3>'
+```
+
+(Make sure to remove that line from bash_history ;) )
