@@ -16,6 +16,12 @@ variable "argocd_chart_version" {
   default     = "5.51.5"
 }
 
+variable "external_secrets_chart_version" {
+  type        = string
+  default     = "0.9.1"
+  description = "Version of the External Secrets Helm chart to deploy."
+}
+
 variable "nfs_provisioner_chart_version" {
   type        = string
   default     = "4.0.18"
