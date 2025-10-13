@@ -22,6 +22,14 @@ resource "helm_release" "vault" {
           size         = "10Gi"
           storageClass = "nfs-client-hdd"
         }
+        ingress = {
+          enabled = true
+          ingressClassName = "nginx"
+          hosts = [{
+            host = "vault.local"
+            paths = ["/"]
+          }]
+        }
       }
       ui = {
         enabled = true

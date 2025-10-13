@@ -19,7 +19,6 @@ terraform init -upgrade
 ```
 
 ## How to deploy
-
 To apply the terraform state, simply run
 ```bash
 terraform plan
@@ -35,6 +34,12 @@ Obtain ArgoCD admin user password
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
+
+## Configure vault
+
+Next we need to configure two things.
+1. Vault auto-unseal
+2. Vault configuration for ESO
 
 Next we need to setup vault auto-unseal after reboot.
 List the keys and unseal the vault manually for the first time
@@ -56,3 +61,11 @@ kubectl create secret generic vault-unseal-keys -n vault \
 ```
 
 (Make sure to remove that line from bash_history ;) )
+
+Next, ensure vault.local resolves to 192.168.10.90 (either DNS or a manual host entry)
+
+Move into the vault directory and run the terraform configs
+```bash
+cd vault/
+terraform apply
+```

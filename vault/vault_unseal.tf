@@ -1,20 +1,25 @@
-# After you initialize Vault and get your unseal keys, create this secret manually:
-# kubectl create secret generic vault-unseal-keys -n vault \
-#   --from-literal=key1='<unseal-key-1>' \
-#   --from-literal=key2='<unseal-key-2>' \
-#   --from-literal=key3='<unseal-key-3>'
+# vault_unseal.tf
 
-resource "kubernetes_service_account" "vault_unseal" {
+# This data block fetches the existing 'vault' namespace so other resources can use it.
+data "kubernetes_namespace" "vault" {
   metadata {
-    name      = "vault-unseal"
-    namespace = kubernetes_namespace.vault.metadata[0].name
+    name = "vault"
   }
 }
 
+# Creates a Service Account for the unseal CronJob to use.
+resource "kubernetes_service_account" "vault_unseal" {
+  metadata {
+    name      = "vault-unseal"
+    namespace = data.kubernetes_namespace.vault.metadata[0].name
+  }
+}
+
+# Creates a Role with the specific permissions needed to find and exec into the Vault pod.
 resource "kubernetes_role" "vault_unseal" {
   metadata {
     name      = "vault-unseal"
-    namespace = kubernetes_namespace.vault.metadata[0].name
+    namespace = data.kubernetes_namespace.vault.metadata[0].name
   }
 
   rule {
@@ -30,10 +35,11 @@ resource "kubernetes_role" "vault_unseal" {
   }
 }
 
+# Binds the Role to the Service Account, granting it the necessary permissions.
 resource "kubernetes_role_binding" "vault_unseal" {
   metadata {
     name      = "vault-unseal"
-    namespace = kubernetes_namespace.vault.metadata[0].name
+    namespace = data.kubernetes_namespace.vault.metadata[0].name
   }
 
   role_ref {
@@ -45,17 +51,18 @@ resource "kubernetes_role_binding" "vault_unseal" {
   subject {
     kind      = "ServiceAccount"
     name      = kubernetes_service_account.vault_unseal.metadata[0].name
-    namespace = kubernetes_namespace.vault.metadata[0].name
+    namespace = data.kubernetes_namespace.vault.metadata[0].name
   }
 }
 
+# Defines the CronJob that runs every 5 minutes to check and unseal Vault.
 resource "kubectl_manifest" "vault_unseal_cronjob" {
   yaml_body = <<-YAML
     apiVersion: batch/v1
     kind: CronJob
     metadata:
       name: vault-auto-unseal
-      namespace: ${kubernetes_namespace.vault.metadata[0].name}
+      namespace: ${data.kubernetes_namespace.vault.metadata[0].name}
     spec:
       schedule: "*/5 * * * *"
       jobTemplate:
@@ -70,12 +77,18 @@ resource "kubectl_manifest" "vault_unseal_cronjob" {
                 command: ["/bin/bash", "-c"]
                 args:
                 - |
+                  # Find any running vault pod, not just vault-0
+                  VAULT_POD=$(kubectl get pod -n vault -l app.kubernetes.io/name=vault -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | cut -d' ' -f1)
+                  if [ -z "$VAULT_POD" ]; then
+                    echo "No running vault pod found."
+                    exit 1
+                  fi
                   # Check if vault is sealed (exit code 2 means sealed)
-                  if ! kubectl exec -n vault vault-0 -- vault status > /dev/null 2>&1; then
+                  if ! kubectl exec -n vault $VAULT_POD -- vault status > /dev/null 2>&1; then
                     echo "Vault is sealed, unsealing..."
-                    kubectl exec -n vault vault-0 -- vault operator unseal $KEY1
-                    kubectl exec -n vault vault-0 -- vault operator unseal $KEY2
-                    kubectl exec -n vault vault-0 -- vault operator unseal $KEY3
+                    kubectl exec -n vault $VAULT_POD -- vault operator unseal $KEY1
+                    kubectl exec -n vault $VAULT_POD -- vault operator unseal $KEY2
+                    kubectl exec -n vault $VAULT_POD -- vault operator unseal $KEY3
                     echo "Unseal complete"
                   else
                     echo "Vault is already unsealed"
@@ -99,7 +112,6 @@ resource "kubectl_manifest" "vault_unseal_cronjob" {
   YAML
 
   depends_on = [
-    helm_release.vault,
     kubernetes_role_binding.vault_unseal
   ]
 }
