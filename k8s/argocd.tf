@@ -13,32 +13,31 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   namespace  = kubernetes_namespace.argocd.metadata[0].name
   version    = var.argocd_chart_version
-
+  
+  wait          = true
+  wait_for_jobs = true
+  timeout       = 600
+  
   values = [
     yamlencode({
-      # This sets the domain for the Ingress and other components
       global = {
         domain = "argocd.local"
       }
-
       server = {
         ingress = {
           enabled          = true
           ingressClassName = "nginx"
         }
       }
-
       configs = {
         params = {
-          # This tells Argo CD what its public-facing URL is
-          "server.url" = "http://argocd.local"
-          # This is the key setting: it disables the automatic HTTPS redirect
+          "server.url"      = "http://argocd.local"
           "server.insecure" = "true"
         }
       }
     })
   ]
-
+  
   depends_on = [
     kubernetes_namespace.argocd,
     helm_release.nginx_ingress,
@@ -46,6 +45,54 @@ resource "helm_release" "argocd" {
   ]
 }
 
+# Give ArgoCD time to fully initialize after Helm installation
+resource "time_sleep" "wait_for_argocd" {
+  create_duration = "60s"
+  
+  depends_on = [helm_release.argocd]
+}
+
+# Wait for Application CRD to be registered
+data "kubernetes_resource" "argocd_application_crd" {
+  api_version = "apiextensions.k8s.io/v1"
+  kind        = "CustomResourceDefinition"
+  
+  metadata {
+    name = "applications.argoproj.io"
+  }
+  
+  depends_on = [time_sleep.wait_for_argocd]
+}
+
+# Wait for ApplicationSet CRD to be registered
+data "kubernetes_resource" "argocd_applicationset_crd" {
+  api_version = "apiextensions.k8s.io/v1"
+  kind        = "CustomResourceDefinition"
+  
+  metadata {
+    name = "applicationsets.argoproj.io"
+  }
+  
+  depends_on = [time_sleep.wait_for_argocd]
+}
+
+# Wait for the default AppProject to be created
+data "kubernetes_resource" "argocd_default_project" {
+  api_version = "argoproj.io/v1alpha1"
+  kind        = "AppProject"
+  
+  metadata {
+    name      = "default"
+    namespace = "argocd"
+  }
+  
+  depends_on = [
+    time_sleep.wait_for_argocd,
+    data.kubernetes_resource.argocd_application_crd
+  ]
+}
+
+# Create the root Application
 resource "kubectl_manifest" "root_app" {
   yaml_body = <<-YAML
     apiVersion: argoproj.io/v1alpha1
@@ -69,8 +116,8 @@ resource "kubectl_manifest" "root_app" {
           prune: true
           selfHeal: true
   YAML
-
-  # This is CRITICAL. It ensures Argo CD is fully installed
-  # BEFORE Terraform tries to create an application in it.
-  depends_on = [helm_release.argocd]
+  
+  depends_on = [
+    data.kubernetes_resource.argocd_default_project
+  ]
 }
