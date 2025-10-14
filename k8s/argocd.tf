@@ -13,35 +13,32 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   namespace  = kubernetes_namespace.argocd.metadata[0].name
   version    = var.argocd_chart_version
-  
+
   wait          = true
   wait_for_jobs = true
   timeout       = 600
-  
-  values = [
-    yamlencode({
-      global = {
-        domain = "argocd.local"
-      }
-      server = {
-        ingress = {
-          enabled          = true
-          ingressClassName = "nginx"
-          hosts = [{
-            host = "argocd.local"
-            paths = ["/"]
-          }]
+
+values = [
+  yamlencode({
+    server = {
+      insecure = true
+      extraArgs = ["--insecure"]
+      ingress = {
+        enabled = true
+        ingressClassName = "nginx"
+        hosts = ["argocd.local"]
+        paths = ["/"]
+        annotations = {
+          "nginx.ingress.kubernetes.io/ssl-redirect" = "false"
+          "nginx.ingress.kubernetes.io/backend-protocol" = "HTTP"
+          "nginx.ingress.kubernetes.io/force-ssl-redirect" = "false"
         }
       }
-      configs = {
-        params = {
-          "server.url"      = "http://argocd.local"
-          "server.insecure" = "true"
-        }
-      }
-    })
-  ]
-  
+    }
+  })
+]
+
+
   depends_on = [
     kubernetes_namespace.argocd,
     helm_release.nginx_ingress,

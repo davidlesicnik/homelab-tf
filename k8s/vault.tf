@@ -20,7 +20,7 @@ resource "helm_release" "vault" {
         dataStorage = {
           enabled      = true
           size         = "10Gi"
-          storageClass = "nfs-client-ssd"
+          storageClass = "nfs-client-hdd"
         }
         ingress = {
           enabled = true
