@@ -235,6 +235,7 @@ spec:
     spec:
       serviceAccountName: iscsi-csi-node-sa
       hostNetwork: true
+      hostPID: true
       containers:
         - name: node-driver-registrar
           image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.9.0
@@ -275,6 +276,9 @@ spec:
               mountPath: /etc/iscsi
             - name: host-sys
               mountPath: /sys
+            - name: lib-modules
+              mountPath: /lib/modules
+              readOnly: true
       volumes:
         - name: plugin-dir
           hostPath:
@@ -295,10 +299,14 @@ spec:
         - name: iscsi-dir
           hostPath:
             path: /etc/iscsi
-            type: Directory
+            type: DirectoryOrCreate
         - name: host-sys
           hostPath:
             path: /sys
+            type: Directory
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules
             type: Directory
 EOT
 }
