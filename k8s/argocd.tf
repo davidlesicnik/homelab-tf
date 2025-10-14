@@ -27,6 +27,10 @@ resource "helm_release" "argocd" {
         ingress = {
           enabled          = true
           ingressClassName = "nginx"
+          hosts = [{
+            host = "argocd.local"
+            paths = ["/"]
+          }]
         }
       }
       configs = {
