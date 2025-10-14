@@ -7,6 +7,7 @@ Currently includes these elements.
 2. Nginx Ingress Controller
 3. ArgoCD, connected to my homelab-argo repo
 4. NFS mounts to my NAS
+5. iSCSI driver
 5. Vault with a vault autounseal cronjob
 
 ## How to prepare Terraform on the workstation
