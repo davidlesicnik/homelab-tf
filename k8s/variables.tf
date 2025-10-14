@@ -53,3 +53,25 @@ variable "nfs_server_path_media" {
   type        = string
   default     = "/volume1/media"
 }
+
+variable "iscsi_target_ip" {
+  type        = string
+  default     = "192.168.10.9"
+}
+
+variable "iscsi_target_iqn" {
+  type        = string
+  default     = "iqn.2025-03.com.ugreen:target-1.cb0c78051c"
+}
+
+variable "iscsi_lun" {
+  type        = string
+  default     = "0"
+  description = "LUN number to use for the PVCs"
+}
+
+variable "iscsi_fs_type" {
+  type        = string
+  default     = "ext4"
+  description = "Filesystem type to format the LUNs"
+}
