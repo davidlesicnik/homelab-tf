@@ -59,6 +59,12 @@ variable "iscsi_target_ip" {
   default     = "192.168.10.9"
 }
 
+variable "iscsi_target_portal" {
+  type        = string
+  default     = "192.168.10.9:3260"
+  description = "iSCSI target portal (IP:Port)"
+}
+
 variable "iscsi_target_iqn" {
   type        = string
   default     = "iqn.2025-03.com.ugreen:target-1.cb0c78051c"
