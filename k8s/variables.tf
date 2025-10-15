@@ -53,3 +53,9 @@ variable "nfs_server_path_media" {
   type        = string
   default     = "/volume1/media"
 }
+
+variable "longhorn_chart_version" {
+  type        = string
+  default     = "1.7.2"
+  description = "Version of the Longhorn Helm chart to deploy."
+}
