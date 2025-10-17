@@ -12,21 +12,30 @@ resource "helm_release" "argocd" {
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
   namespace  = kubernetes_namespace.argocd.metadata[0].name
-  version    = var.argocd_chart_version
+  version    = "8.6.4"
   wait          = true
   wait_for_jobs = true
   timeout       = 600
-
   values = [
     yamlencode({
+      configs = {
+        cm = {
+          "url" = "http://argocd.local"
+        }
+        params = {
+          "server.insecure" = "true"
+        }
+        rbac = {
+          "policy.default" = "role:admin"
+        }
+      }
       server = {
-        insecure = true
-        extraArgs = ["--insecure"]
         ingress = {
           enabled = true
           ingressClassName = "nginx"
-          hosts = ["argocd.local"]
-          paths = ["/"]
+          hostname = "argocd.local"  # Changed from "hosts" array to single "hostname"
+          path = "/"
+          pathType = "Prefix"
           annotations = {
             "nginx.ingress.kubernetes.io/ssl-redirect" = "false"
             "nginx.ingress.kubernetes.io/backend-protocol" = "HTTP"
@@ -36,7 +45,6 @@ resource "helm_release" "argocd" {
       }
     })
   ]
-
   depends_on = [
     kubernetes_namespace.argocd,
     helm_release.nginx_ingress,

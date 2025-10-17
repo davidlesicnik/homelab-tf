@@ -13,7 +13,7 @@ variable "nginx_ingress_chart_version" {
 variable "argocd_chart_version" {
   type        = string
   description = "Version of the Argo CD Helm chart to deploy."
-  default     = "5.51.5"
+  default     = "8.6.4"
 }
 
 variable "external_secrets_chart_version" {
