@@ -100,3 +100,37 @@ resource "kubectl_manifest" "root_app" {
     terraform_data.argocd_ready
   ]
 }
+
+# ClusterRole to allow ArgoCD to manage namespaces
+resource "kubernetes_cluster_role_v1" "argocd_namespace_manager" {
+  metadata {
+    name = "argocd-namespace-manager"
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["namespaces"]
+    verbs      = ["get", "list", "watch", "create", "update", "patch", "delete"]
+  }
+}
+
+# Bind the role to ArgoCD's application controller
+resource "kubernetes_cluster_role_binding_v1" "argocd_namespace_manager" {
+  metadata {
+    name = "argocd-namespace-manager"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = kubernetes_cluster_role_v1.argocd_namespace_manager.metadata[0].name
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = "argocd-application-controller"
+    namespace = kubernetes_namespace.argocd.metadata[0].name
+  }
+
+  depends_on = [helm_release.argocd]
+}
