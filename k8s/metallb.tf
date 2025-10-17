@@ -5,11 +5,6 @@ resource "null_resource" "remove_node_label" {
       kubectl get nodes -o name | xargs -I {} kubectl label {} node.kubernetes.io/exclude-from-external-load-balancers-
     EOT
   }
-
-  # Optionally add a trigger to re-run if needed
-  triggers = {
-    always_run = timestamp()
-  }
 }
 
 resource "kubernetes_namespace" "metallb_system" {
