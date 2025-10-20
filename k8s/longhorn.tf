@@ -134,3 +134,20 @@ resource "kubernetes_ingress_v1" "longhorn" {
     helm_release.longhorn
   ]
 }
+
+# Label Talos nodes for Longhorn automatic disk creation
+resource "kubernetes_labels" "longhorn_disk_label" {
+  for_each = toset(var.longhorn_nodes)
+
+  api_version = "v1"
+  kind        = "Node"
+  metadata {
+    name = each.key
+  }
+  labels = {
+    "node.longhorn.io/create-default-disk" = "true"
+  }
+  depends_on = [
+    helm_release.longhorn
+  ]
+}

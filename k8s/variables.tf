@@ -59,3 +59,8 @@ variable "longhorn_chart_version" {
   default     = "1.7.2"
   description = "Version of the Longhorn Helm chart to deploy."
 }
+
+variable "longhorn_nodes" {
+  type    = list(string)
+  default = ["talos-mw1", "talos-mw2"]
+}
