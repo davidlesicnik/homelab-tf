@@ -62,5 +62,6 @@ variable "longhorn_chart_version" {
 
 variable "longhorn_nodes" {
   type    = list(string)
-  default = ["talos-mw1", "talos-mw2"]
+  #default = ["talos-mw1", "talos-mw2"]
+  default = ["talos-mw1"]
 }
