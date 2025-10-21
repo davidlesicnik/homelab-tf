@@ -21,6 +21,13 @@ resource "helm_release" "argocd" {
       configs = {
         cm = {
           "url" = "http://argocd.local"
+          "resource.exclusions" = <<-EOT
+            # Internal Kubernetes resources
+            - apiGroups:
+              - coordination.k8s.io
+              kinds:
+              - Lease
+          EOT
         }
         params = {
           "server.insecure" = "true"
@@ -33,7 +40,7 @@ resource "helm_release" "argocd" {
         ingress = {
           enabled = true
           ingressClassName = "nginx"
-          hostname = "argocd.local"  # Changed from "hosts" array to single "hostname"
+          hostname = "argocd.local"
           path = "/"
           pathType = "Prefix"
           annotations = {
