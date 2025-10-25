@@ -40,7 +40,7 @@ resource "helm_release" "longhorn" {
         guaranteedReplicaManagerCPU   = 12
         
         # Backup configuration
-        backupTarget = "nfs://192.168.10.9:/volume1/longhorn_backup"
+        backupTarget = "nfs://192.168.10.9:/volume1/longhorn_backup?nfsOptions=vers=3,nolock"
         backupTargetCredentialSecret = ""
         
         # Set default recurring job group
@@ -54,8 +54,13 @@ resource "helm_release" "longhorn" {
       }
       
       ingress = {
-        enabled = false
-        # We're creating a separate ingress resource instead
+        enabled = true
+        ingressClassName = "nginx"
+        host = "longhorn.local"
+        tls = false
+        annotations = {
+          "nginx.ingress.kubernetes.io/proxy-body-size" = "10000m"
+        }
       }
       
       longhornManager = {
@@ -101,45 +106,6 @@ resource "helm_release" "longhorn" {
   ]
   
   depends_on = [kubernetes_namespace.longhorn_system]
-}
-
-# Longhorn UI Ingress
-resource "kubernetes_ingress_v1" "longhorn" {
-  metadata {
-    name      = "longhorn-ingress"
-    namespace = kubernetes_namespace.longhorn_system.metadata[0].name
-    annotations = {
-      "nginx.ingress.kubernetes.io/proxy-body-size" = "10000m"
-    }
-  }
-  
-  spec {
-    ingress_class_name = "nginx"
-   
-    rule {
-      host = "longhorn.local"
-     
-      http {
-        path {
-          path      = "/"
-          path_type = "Prefix"
-         
-          backend {
-            service {
-              name = "longhorn-frontend"
-              port {
-                number = 80
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  depends_on = [
-    helm_release.longhorn
-  ]
 }
 
 # Label Talos nodes for Longhorn automatic disk creation
