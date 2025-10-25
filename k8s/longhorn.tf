@@ -18,6 +18,7 @@ resource "helm_release" "longhorn" {
   version    = var.longhorn_chart_version
   namespace  = kubernetes_namespace.longhorn_system.metadata[0].name
   
+  # Wait for CRDs and resources to be ready
   wait          = true
   wait_for_jobs = true
   timeout       = 600
@@ -32,6 +33,7 @@ resource "helm_release" "longhorn" {
         replicaAutoBalance                = "best-effort"
         storageMinimalAvailablePercentage = 10
        
+        # Talos-specific: Ensure proper directory creation
         createDefaultDiskLabeledNodes = true
        
         guaranteedEngineManagerCPU    = 12
@@ -39,7 +41,10 @@ resource "helm_release" "longhorn" {
         
         # Backup configuration
         backupTarget = "nfs://192.168.10.9:/volume1/longhorn_backup"
-        backupTargetCredentialSecret = ""  # Leave empty if no authentication needed
+        backupTargetCredentialSecret = ""
+        
+        # Set default recurring job group
+        defaultRecurringJobGroup = "default"
       }
      
       persistence = {
@@ -50,6 +55,7 @@ resource "helm_release" "longhorn" {
       
       ingress = {
         enabled = false
+        # We're creating a separate ingress resource instead
       }
       
       longhornManager = {
@@ -131,7 +137,9 @@ resource "kubernetes_ingress_v1" "longhorn" {
     }
   }
   
-  depends_on = [helm_release.longhorn]
+  depends_on = [
+    helm_release.longhorn
+  ]
 }
 
 # Label Talos nodes for Longhorn automatic disk creation
@@ -149,7 +157,9 @@ resource "kubernetes_labels" "longhorn_disk_label" {
     "node.longhorn.io/create-default-disk" = "true"
   }
   
-  depends_on = [helm_release.longhorn]
+  depends_on = [
+    helm_release.longhorn
+  ]
 }
 
 # Recurring backup job - runs every 6 hours for all volumes
@@ -165,6 +175,7 @@ resource "kubernetes_manifest" "longhorn_recurring_backup" {
     
     spec = {
       name = "backup-every-6h"
+      groups = ["default"]  # Assign to default group
       task = "backup"
       cron = "0 */6 * * *"  # Every 6 hours at minute 0
       retain = 14            # Keep 14 backups (3.5 days worth)
@@ -176,29 +187,4 @@ resource "kubernetes_manifest" "longhorn_recurring_backup" {
   }
   
   depends_on = [helm_release.longhorn]
-}
-
-# Apply the recurring job to all volumes by default
-resource "kubernetes_manifest" "longhorn_default_recurring_jobs" {
-  manifest = {
-    apiVersion = "longhorn.io/v1beta2"
-    kind       = "Setting"
-    
-    metadata = {
-      name      = "recurring-job-selector"
-      namespace = kubernetes_namespace.longhorn_system.metadata[0].name
-    }
-    
-    value = jsonencode([
-      {
-        name    = "backup-every-6h"
-        isGroup = false
-      }
-    ])
-  }
-  
-  depends_on = [
-    helm_release.longhorn,
-    kubernetes_manifest.longhorn_recurring_backup
-  ]
 }
