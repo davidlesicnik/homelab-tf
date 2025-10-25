@@ -36,13 +36,14 @@ Obtain ArgoCD admin user password
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 
-## Configure vault
+## Configure Vault & ArgoCD
 
 Next we need to configure two things.
 1. Vault auto-unseal
 2. Vault configuration for ESO
+3. Deploy ArgoCD
 
-Next we need to setup vault auto-unseal after reboot.
+First we need to setup vault auto-unseal after reboot.
 List the keys and unseal the vault manually for the first time
 
 ```bash
@@ -69,4 +70,11 @@ Move into the vault directory and run the terraform configs
 ```bash
 cd vault/
 terraform apply
+```
+
+Once it's all ready, you can deploy ArgoCD
+
+```bash
+cd argocd/
+terraform apply/
 ```
