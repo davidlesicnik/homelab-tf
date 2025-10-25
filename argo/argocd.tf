@@ -54,8 +54,6 @@ resource "helm_release" "argocd" {
   ]
   depends_on = [
     kubernetes_namespace.argocd,
-    helm_release.nginx_ingress,
-    kubectl_manifest.metallb_l2advertisement
   ]
 }
 
