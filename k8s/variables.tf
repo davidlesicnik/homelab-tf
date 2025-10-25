@@ -10,12 +10,6 @@ variable "nginx_ingress_chart_version" {
   description = "Version of the Nginx Ingress Helm chart to deploy."
 }
 
-variable "argocd_chart_version" {
-  type        = string
-  description = "Version of the Argo CD Helm chart to deploy."
-  default     = "8.0.9"
-}
-
 variable "external_secrets_chart_version" {
   type        = string
   default     = "0.9.1"
@@ -41,7 +35,7 @@ variable "nfs_server_ip" {
 
 variable "nfs_server_path_ssd" {
   type        = string
-  default     = "/volume2/ssd"
+  default     = "/volume2/nfs-ssd"
 }
 
 variable "nfs_server_path_hdd" {

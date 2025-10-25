@@ -28,9 +28,9 @@ resource "helm_release" "longhorn" {
       defaultSettings = {
         defaultDataPath = "/var/lib/longhorn"
         
-        defaultReplicaCount                = 1
-        replicaSoftAntiAffinity           = "false"
-        replicaAutoBalance                = "disabled"
+        defaultReplicaCount                = 2
+        replicaSoftAntiAffinity           = "true"
+        replicaAutoBalance                = "best-effort"
         storageMinimalAvailablePercentage = 10
         
         # Talos-specific: Ensure proper directory creation
@@ -42,7 +42,7 @@ resource "helm_release" "longhorn" {
      
       persistence = {
         defaultClass             = true
-        defaultClassReplicaCount = 1
+        defaultClassReplicaCount = 2
         reclaimPolicy            = "Delete"
       }
 

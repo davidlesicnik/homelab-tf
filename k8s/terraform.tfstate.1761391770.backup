@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.13.3",
-  "serial": 403,
+  "serial": 392,
   "lineage": "737b8cf0-ee53-19e2-b657-42dfcf888b84",
   "outputs": {},
   "resources": [
@@ -119,12 +119,12 @@
               "app_version": "v1.7.2",
               "chart": "longhorn",
               "first_deployed": 1761391147,
-              "last_deployed": 1761393117,
+              "last_deployed": 1761391147,
               "name": "longhorn",
               "namespace": "longhorn-system",
               "notes": "Longhorn is now installed on the cluster!\n\nPlease wait a few minutes for other Longhorn components such as CSI deployments, Engine Images, and Instance Managers to be initialized.\n\nVisit our documentation at https://longhorn.io/docs/\n",
-              "revision": 3,
-              "values": "{\"defaultSettings\":{\"createDefaultDiskLabeledNodes\":true,\"defaultDataPath\":\"/var/lib/longhorn\",\"defaultReplicaCount\":2,\"guaranteedEngineManagerCPU\":12,\"guaranteedReplicaManagerCPU\":12,\"replicaAutoBalance\":\"best-effort\",\"replicaSoftAntiAffinity\":\"true\",\"storageMinimalAvailablePercentage\":10},\"ingress\":{\"enabled\":false},\"longhornDriver\":{\"resources\":{\"limits\":{\"cpu\":\"200m\",\"memory\":\"256Mi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}},\"longhornManager\":{\"resources\":{\"limits\":{\"cpu\":\"200m\",\"memory\":\"256Mi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}},\"tolerations\":[]},\"longhornUI\":{\"resources\":{\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"50m\",\"memory\":\"64Mi\"}}},\"persistence\":{\"defaultClass\":true,\"defaultClassReplicaCount\":2,\"reclaimPolicy\":\"Delete\"}}",
+              "revision": 1,
+              "values": "{\"defaultSettings\":{\"createDefaultDiskLabeledNodes\":true,\"defaultDataPath\":\"/var/lib/longhorn\",\"defaultReplicaCount\":1,\"guaranteedEngineManagerCPU\":12,\"guaranteedReplicaManagerCPU\":12,\"replicaAutoBalance\":\"disabled\",\"replicaSoftAntiAffinity\":\"false\",\"storageMinimalAvailablePercentage\":10},\"ingress\":{\"enabled\":false},\"longhornDriver\":{\"resources\":{\"limits\":{\"cpu\":\"200m\",\"memory\":\"256Mi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}},\"longhornManager\":{\"resources\":{\"limits\":{\"cpu\":\"200m\",\"memory\":\"256Mi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}},\"tolerations\":[]},\"longhornUI\":{\"resources\":{\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"50m\",\"memory\":\"64Mi\"}}},\"persistence\":{\"defaultClass\":true,\"defaultClassReplicaCount\":1,\"reclaimPolicy\":\"Delete\"}}",
               "version": "1.7.2"
             },
             "name": "longhorn",
@@ -151,7 +151,7 @@
             "status": "deployed",
             "timeout": 600,
             "values": [
-              "\"defaultSettings\":\n  \"createDefaultDiskLabeledNodes\": true\n  \"defaultDataPath\": \"/var/lib/longhorn\"\n  \"defaultReplicaCount\": 2\n  \"guaranteedEngineManagerCPU\": 12\n  \"guaranteedReplicaManagerCPU\": 12\n  \"replicaAutoBalance\": \"best-effort\"\n  \"replicaSoftAntiAffinity\": \"true\"\n  \"storageMinimalAvailablePercentage\": 10\n\"ingress\":\n  \"enabled\": false\n\"longhornDriver\":\n  \"resources\":\n    \"limits\":\n      \"cpu\": \"200m\"\n      \"memory\": \"256Mi\"\n    \"requests\":\n      \"cpu\": \"100m\"\n      \"memory\": \"128Mi\"\n\"longhornManager\":\n  \"resources\":\n    \"limits\":\n      \"cpu\": \"200m\"\n      \"memory\": \"256Mi\"\n    \"requests\":\n      \"cpu\": \"100m\"\n      \"memory\": \"128Mi\"\n  \"tolerations\": []\n\"longhornUI\":\n  \"resources\":\n    \"limits\":\n      \"cpu\": \"100m\"\n      \"memory\": \"128Mi\"\n    \"requests\":\n      \"cpu\": \"50m\"\n      \"memory\": \"64Mi\"\n\"persistence\":\n  \"defaultClass\": true\n  \"defaultClassReplicaCount\": 2\n  \"reclaimPolicy\": \"Delete\"\n"
+              "\"defaultSettings\":\n  \"createDefaultDiskLabeledNodes\": true\n  \"defaultDataPath\": \"/var/lib/longhorn\"\n  \"defaultReplicaCount\": 1\n  \"guaranteedEngineManagerCPU\": 12\n  \"guaranteedReplicaManagerCPU\": 12\n  \"replicaAutoBalance\": \"disabled\"\n  \"replicaSoftAntiAffinity\": \"false\"\n  \"storageMinimalAvailablePercentage\": 10\n\"ingress\":\n  \"enabled\": false\n\"longhornDriver\":\n  \"resources\":\n    \"limits\":\n      \"cpu\": \"200m\"\n      \"memory\": \"256Mi\"\n    \"requests\":\n      \"cpu\": \"100m\"\n      \"memory\": \"128Mi\"\n\"longhornManager\":\n  \"resources\":\n    \"limits\":\n      \"cpu\": \"200m\"\n      \"memory\": \"256Mi\"\n    \"requests\":\n      \"cpu\": \"100m\"\n      \"memory\": \"128Mi\"\n  \"tolerations\": []\n\"longhornUI\":\n  \"resources\":\n    \"limits\":\n      \"cpu\": \"100m\"\n      \"memory\": \"128Mi\"\n    \"requests\":\n      \"cpu\": \"50m\"\n      \"memory\": \"64Mi\"\n\"persistence\":\n  \"defaultClass\": true\n  \"defaultClassReplicaCount\": 1\n  \"reclaimPolicy\": \"Delete\"\n"
             ],
             "verify": false,
             "version": "1.7.2",
@@ -609,100 +609,6 @@
             "kubectl_manifest.metallb_l2advertisement",
             "kubernetes_namespace.ingress_nginx",
             "kubernetes_namespace.metallb_system",
-            "null_resource.remove_node_label"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "helm_release",
-      "name": "vault",
-      "provider": "provider[\"registry.terraform.io/hashicorp/helm\"]",
-      "instances": [
-        {
-          "schema_version": 2,
-          "attributes": {
-            "atomic": false,
-            "chart": "vault",
-            "cleanup_on_fail": false,
-            "create_namespace": false,
-            "dependency_update": false,
-            "description": null,
-            "devel": null,
-            "disable_crd_hooks": false,
-            "disable_openapi_validation": false,
-            "disable_webhooks": false,
-            "force_update": false,
-            "id": "vault",
-            "keyring": null,
-            "lint": false,
-            "manifest": null,
-            "max_history": 0,
-            "metadata": {
-              "app_version": "1.16.1",
-              "chart": "vault",
-              "first_deployed": 1761391782,
-              "last_deployed": 1761391782,
-              "name": "vault",
-              "namespace": "vault",
-              "notes": "\nThank you for installing HashiCorp Vault!\n\nNow that you have deployed Vault, you should look over the docs on using\nVault with Kubernetes available here:\n\nhttps://developer.hashicorp.com/vault/docs\n\n\nYour release is named vault. To learn more about the release, try:\n\n  $ helm status vault\n  $ helm get manifest vault\n\n",
-              "revision": 1,
-              "values": "{\"injector\":{\"enabled\":true},\"server\":{\"dataStorage\":{\"enabled\":true,\"size\":\"10Gi\",\"storageClass\":\"nfs-client-ssd\"},\"ingress\":{\"enabled\":true,\"hosts\":[{\"host\":\"vault.local\",\"paths\":[\"/\"]}],\"ingressClassName\":\"nginx\"},\"standalone\":{\"enabled\":true}},\"ui\":{\"enabled\":true}}",
-              "version": "0.28.0"
-            },
-            "name": "vault",
-            "namespace": "vault",
-            "pass_credentials": false,
-            "postrender": null,
-            "recreate_pods": false,
-            "render_subchart_notes": true,
-            "replace": false,
-            "repository": "https://helm.releases.hashicorp.com",
-            "repository_ca_file": null,
-            "repository_cert_file": null,
-            "repository_key_file": null,
-            "repository_password": null,
-            "repository_username": null,
-            "reset_values": false,
-            "reuse_values": false,
-            "set": null,
-            "set_list": null,
-            "set_sensitive": null,
-            "set_wo": null,
-            "set_wo_revision": null,
-            "skip_crds": false,
-            "status": "deployed",
-            "timeout": 300,
-            "values": [
-              "\"injector\":\n  \"enabled\": true\n\"server\":\n  \"dataStorage\":\n    \"enabled\": true\n    \"size\": \"10Gi\"\n    \"storageClass\": \"nfs-client-ssd\"\n  \"ingress\":\n    \"enabled\": true\n    \"hosts\":\n    - \"host\": \"vault.local\"\n      \"paths\":\n      - \"/\"\n    \"ingressClassName\": \"nginx\"\n  \"standalone\":\n    \"enabled\": true\n\"ui\":\n  \"enabled\": true\n"
-            ],
-            "verify": false,
-            "version": "0.28.0",
-            "wait": true,
-            "wait_for_jobs": false
-          },
-          "sensitive_attributes": [
-            [
-              {
-                "type": "get_attr",
-                "value": "repository_password"
-              }
-            ]
-          ],
-          "identity_schema_version": 0,
-          "identity": {
-            "namespace": "vault",
-            "release_name": "vault"
-          },
-          "dependencies": [
-            "helm_release.metallb",
-            "helm_release.nginx_ingress",
-            "kubectl_manifest.metallb_ipaddresspool",
-            "kubectl_manifest.metallb_l2advertisement",
-            "kubernetes_namespace.ingress_nginx",
-            "kubernetes_namespace.metallb_system",
-            "kubernetes_namespace.vault",
             "null_resource.remove_node_label"
           ]
         }
@@ -1193,12 +1099,12 @@
                 "generation": 0,
                 "labels": {},
                 "name": "vault",
-                "resource_version": "28835",
-                "uid": "ce89efe9-1a04-4b6c-ac31-ecdbc8351404"
+                "resource_version": "24834",
+                "uid": "df3cbc01-e9a1-431e-ae2b-e69443e69ea2"
               }
             ],
             "timeouts": null,
-            "wait_for_default_service_account": false
+            "wait_for_default_service_account": null
           },
           "sensitive_attributes": [],
           "identity_schema_version": 1,
@@ -1207,7 +1113,7 @@
             "kind": "Namespace",
             "name": "vault"
           },
-          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjozMDAwMDAwMDAwMDB9fQ=="
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjozMDAwMDAwMDAwMDB9LCJzY2hlbWFfdmVyc2lvbiI6IjAifQ=="
         }
       ]
     },
