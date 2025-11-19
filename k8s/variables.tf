@@ -10,6 +10,12 @@ variable "nginx_ingress_chart_version" {
   description = "Version of the Nginx Ingress Helm chart to deploy."
 }
 
+variable "traefik_chart_version" {
+  type        = string
+  default     = "37.3.0"
+  description = "Version of the Traefik Helm chart to deploy."
+}
+
 variable "external_secrets_chart_version" {
   type        = string
   default     = "0.9.1"
@@ -35,7 +41,7 @@ variable "nfs_server_ip" {
 
 variable "nfs_server_path_ssd" {
   type        = string
-  default     = "/volume2/nfs-ssd"
+  default     = "/volume2/ssd"
 }
 
 variable "nfs_server_path_hdd" {
