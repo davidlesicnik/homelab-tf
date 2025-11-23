@@ -56,7 +56,7 @@ resource "helm_release" "longhorn" {
       ingress = {
         enabled = true
         ingressClassName = "nginx"
-        host = "longhorn.local"
+        host = "longhorn.lesicnik.eu"
         tls = false
         annotations = {
           "nginx.ingress.kubernetes.io/proxy-body-size" = "10000m"

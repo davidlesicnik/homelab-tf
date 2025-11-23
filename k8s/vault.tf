@@ -26,7 +26,7 @@ resource "helm_release" "vault" {
           enabled = true
           ingressClassName = "nginx"
           hosts = [{
-            host = "vault.local"
+            host = "vault.lesicnik.eu"
             paths = ["/"]
           }]
         }

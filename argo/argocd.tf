@@ -20,7 +20,7 @@ resource "helm_release" "argocd" {
     yamlencode({
       configs = {
         cm = {
-          "url" = "http://argocd.local"
+          "url" = "http://argocd.lesicnik.eu"
           "resource.exclusions" = <<-EOT
             # Internal Kubernetes resources
             - apiGroups:
