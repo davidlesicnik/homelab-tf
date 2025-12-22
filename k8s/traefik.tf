@@ -58,6 +58,13 @@ resource "helm_release" "traefik" {
         }
       }
 
+      # Enable plugin support for CrowdSec bouncer
+      experimental = {
+        plugins = {
+          enabled = true
+        }
+      }
+
       # Ports configuration
       ports = {
         web = {

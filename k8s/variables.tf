@@ -16,12 +16,6 @@ variable "traefik_chart_version" {
   description = "Version of the Traefik Helm chart to deploy."
 }
 
-variable "external_secrets_chart_version" {
-  type        = string
-  default     = "1.1.1"
-  description = "Version of the External Secrets Helm chart to deploy."
-}
-
 variable "nfs_provisioner_chart_version" {
   type        = string
   default     = "4.0.18"
