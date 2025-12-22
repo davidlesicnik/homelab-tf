@@ -60,12 +60,14 @@ resource "helm_release" "traefik" {
         }
       }
 
-      # Persistence for access logs (hostPath - shared with CrowdSec)
+      # Persistence for access logs (RWX PVC - shared with CrowdSec)
       persistence = {
-        enabled = true
-        name    = "traefik-logs"
-        path    = "/var/log/traefik"
-        type    = "hostPath"
+        enabled      = true
+        name         = "traefik-logs"
+        path         = "/var/log/traefik"
+        size         = "1Gi"
+        storageClass = "longhorn"
+        accessMode   = "ReadWriteMany"
       }
 
       # Ports configuration
