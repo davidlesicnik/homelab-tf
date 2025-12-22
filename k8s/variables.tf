@@ -41,7 +41,7 @@ variable "nfs_server_ip" {
 
 variable "nfs_server_path_ssd" {
   type        = string
-  default     = "/volume2/ssd"
+  default     = "/volume2/nfs-ssd"
 }
 
 variable "nfs_server_path_hdd" {
