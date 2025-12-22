@@ -51,18 +51,21 @@ resource "helm_release" "traefik" {
         type = "LoadBalancer"
       }
 
-      # Enable access logs for debugging
+      # Enable access logs for CrowdSec
       logs = {
         access = {
           enabled = true
+          format  = "json"
+          filePath = "/var/log/traefik/access.log"
         }
       }
 
-      # Enable plugin support for CrowdSec bouncer
-      experimental = {
-        plugins = {
-          enabled = true
-        }
+      # Persistence for access logs (hostPath - shared with CrowdSec)
+      persistence = {
+        enabled = true
+        name    = "traefik-logs"
+        path    = "/var/log/traefik"
+        type    = "hostPath"
       }
 
       # Ports configuration
