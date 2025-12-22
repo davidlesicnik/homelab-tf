@@ -18,7 +18,7 @@ variable "traefik_chart_version" {
 
 variable "external_secrets_chart_version" {
   type        = string
-  default     = "0.9.1"
+  default     = "1.1.1"
   description = "Version of the External Secrets Helm chart to deploy."
 }
 
