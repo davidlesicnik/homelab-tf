@@ -2,13 +2,15 @@
 
 This repository contains Terraform configuration files to provision and manage all resources necessary for a fully functional Kubernetes cluster.
 
-Currently includes these elements.
-1. MetalLB
-2. Nginx Ingress Controller
-3. ArgoCD, connected to my homelab-argo repo
-4. NFS mounts to my NAS
-5. iSCSI driver
-5. Vault with a vault autounseal cronjob
+## Infrastructure Components
+
+1. **MetalLB** - Load balancer for bare metal Kubernetes clusters
+2. **Nginx Ingress Controller** - Ingress controller for HTTP/HTTPS routing
+3. **Traefik** (WIP) - Ingress controller with Gateway API support and CrowdSec integration
+4. **Longhorn** - Distributed block storage with automated backups to NFS every 6 hours
+5. **ArgoCD** - GitOps continuous delivery tool, connected to homelab-argo repo
+6. **NFS Mounts** - Persistent storage connections to NAS
+7. **Vault** - Secrets management with automated unseal cronjob
 
 ## How to prepare Terraform on the workstation
 
