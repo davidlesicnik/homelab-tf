@@ -10,10 +10,10 @@ variable "nginx_ingress_chart_version" {
   description = "Version of the Nginx Ingress Helm chart to deploy."
 }
 
-variable "traefik_chart_version" {
+variable "external_secrets_chart_version" {
   type        = string
-  default     = "37.3.0"
-  description = "Version of the Traefik Helm chart to deploy."
+  default     = "0.9.1"
+  description = "Version of the External Secrets Helm chart to deploy."
 }
 
 variable "nfs_provisioner_chart_version" {
