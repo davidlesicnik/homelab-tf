@@ -42,7 +42,6 @@ resource "helm_release" "vault" {
 
   depends_on = [
     kubernetes_namespace.vault,
-    helm_release.nginx_ingress,
     kubectl_manifest.metallb_l2advertisement
   ]
 }
