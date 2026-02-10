@@ -5,8 +5,7 @@ This repository contains Terraform configuration files to provision and manage a
 ## Infrastructure Components
 
 1. **MetalLB** - Load balancer for bare metal Kubernetes clusters
-2. **Nginx Ingress Controller** - Ingress controller for HTTP/HTTPS routing
-3. **Traefik** (WIP) - Ingress controller with Gateway API support and CrowdSec integration
+3. **Gatewayl API CRDs** - Gateway API CRDs which Traefik uses
 4. **Longhorn** - Distributed block storage with automated backups to NFS every 6 hours
 5. **ArgoCD** - GitOps continuous delivery tool, connected to homelab-argo repo
 6. **NFS Mounts** - Persistent storage connections to NAS
